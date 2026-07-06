@@ -16,6 +16,7 @@ function mostrarBannerInstalacion(){
       <button id="installBtn">Instalar</button>
       <button class="dismiss" id="dismissInstallBtn">✕</button>`;
     document.getElementById('installBtn').addEventListener('click', async () => {
+      sonidoClick();
       deferredInstallPrompt.prompt();
       await deferredInstallPrompt.userChoice;
       deferredInstallPrompt = null;
@@ -28,6 +29,7 @@ function mostrarBannerInstalacion(){
     return;
   }
   document.getElementById('dismissInstallBtn').addEventListener('click', () => {
+    sonidoClick();
     banner.style.display = 'none';
     localStorage.setItem('install_banner_dismissed', '1');
   });
@@ -507,10 +509,10 @@ function descargarExcel(){
 }
 
 // ---------- arranque ----------
-document.getElementById('loginBtn').addEventListener('click', onLoginClick);
+document.getElementById('loginBtn').addEventListener('click', () => { sonidoClick(); onLoginClick(); });
 const msBtnEl = document.getElementById('loginMsBtn');
 if(msBtnEl) msBtnEl.addEventListener('click', onLoginMicrosoftClick);
-document.getElementById('sinCuentaBtn').addEventListener('click', onSinCuentaClick);
+document.getElementById('sinCuentaBtn').addEventListener('click', () => { sonidoClick(); onSinCuentaClick(); });
 document.getElementById('logoutBtn').addEventListener('click', () => { sonidoClick(); onLogoutClick(); });
 document.getElementById('confirmarBtn').addEventListener('click', () => { sonidoClick(); onConfirmarNombre(); });
 document.getElementById('nombreInput').addEventListener('keydown', e => { if(e.key === 'Enter') onConfirmarNombre(); });

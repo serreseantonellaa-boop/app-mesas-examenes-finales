@@ -43,7 +43,7 @@ body{
   font-family:'Inter',system-ui,sans-serif;
   -webkit-tap-highlight-color:transparent;
 }
-button{ font-family:inherit; text-align:center; }
+button{ font-family:inherit; text-align:center; cursor:pointer; }
 
 /* Columna central que contiene toda la app */
 .wrap{ max-width:520px; margin:0 auto; padding:0 0 60px; }
@@ -104,29 +104,32 @@ header p{ margin:0; font-size:12px; opacity:.85; }
 .name-gate button{
   margin-top:14px; width:100%; padding:13px; border:none; border-radius:14px;
   background:var(--violet); color:#fff; font-weight:700; font-size:14.5px; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
+  display:flex; align-items:center; justify-content:center; transition:background .15s ease;
 }
+.name-gate button:active{ background:#7a3290; transform:scale(.98); }
 
 .google-btn{
   display:flex; align-items:center; justify-content:center; gap:10px;
   background:#fff; color:#3c4043; border:1.5px solid var(--line); border-radius:14px;
   padding:13px; font-weight:600; font-size:14.5px; cursor:pointer; width:100%;
+  transition:background .15s ease;
 }
 .google-btn img{ width:18px; height:18px; }
-.google-btn:active{ transform:scale(.98); }
+.google-btn:active{ transform:scale(.98); background:#f4f0f7; }
 
 .microsoft-btn{
   display:flex; align-items:center; justify-content:center; gap:10px;
   background:#fff; color:#3c4043; border:1.5px solid var(--line); border-radius:14px;
   padding:13px; font-weight:600; font-size:14.5px; cursor:pointer; width:100%;
-  margin-top:10px;
+  margin-top:10px; transition:background .15s ease;
 }
-.microsoft-btn:active{ transform:scale(.98); }
+.microsoft-btn:active{ transform:scale(.98); background:#f4f0f7; }
 
 .sin-cuenta{
   margin-top:16px; font-size:12px; color:var(--ink-soft); text-decoration:underline;
-  cursor:pointer; text-align:center;
+  cursor:pointer; text-align:center; transition:color .15s ease;
 }
+.sin-cuenta:active{ color:var(--violet); }
 
 /* ============================================================
    BARRA DE BOTONES (Excel / Calendar / Cambiar nombre / Salir)
@@ -142,7 +145,9 @@ header p{ margin:0; font-size:12px; opacity:.85; }
   font-size:11.5px; font-weight:600; color:var(--ink-soft); cursor:pointer;
   white-space:nowrap; flex:1 1 auto;
   display:inline-flex; align-items:center; justify-content:center; text-align:center;
+  transition:filter .15s ease, transform .1s ease;
 }
+.toolbar button:active{ transform:scale(.95); filter:brightness(0.92); }
 .toolbar .download{ background:var(--violet); color:#fff; border-color:var(--violet); }
 .toolbar .calendar{ background:var(--cyan-soft); color:var(--cyan); border-color:var(--cyan-soft); }
 .toolbar .change{ color:var(--pink); border-color:var(--pink-soft); }
@@ -191,10 +196,11 @@ header p{ margin:0; font-size:12px; opacity:.85; }
   flex:1; display:flex; align-items:center; justify-content:center; gap:6px;
   padding:9px 6px; border-radius:12px; border:1.5px solid var(--line); background:#fff;
   font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer; user-select:none;
+  transition:transform .1s ease, filter .15s ease;
 }
 .tgl.active-acta{ background:var(--pink-soft); border-color:var(--pink); color:var(--pink); }
 .tgl.active-campus{ background:var(--cyan-soft); border-color:var(--cyan); color:var(--cyan); }
-.tgl:active{ transform:scale(.96); }
+.tgl:active{ transform:scale(.96); filter:brightness(0.94); }
 
 
 /* ============================================================
@@ -202,19 +208,22 @@ header p{ margin:0; font-size:12px; opacity:.85; }
    ============================================================ */
 .alumnos-toggle{
   margin-top:10px; font-size:12px; color:var(--violet); font-weight:600; cursor:pointer;
-  display:flex; align-items:center; gap:5px; padding:6px 0;
+  display:flex; align-items:center; gap:5px; padding:6px 0; transition:opacity .1s ease;
 }
+.alumnos-toggle:active{ opacity:.6; }
 .alumnos-box{ display:none; margin-top:10px; border-top:1px dashed var(--line); padding-top:10px; }
 .alumnos-box.open{ display:block; }
 .cerrar-alumnos{
   margin-top:10px; font-size:11.5px; color:var(--ink-soft); font-weight:600; cursor:pointer;
-  text-align:center; padding:8px 0 2px; border-top:1px solid #F5EDF9;
+  text-align:center; padding:8px 0 2px; border-top:1px solid #F5EDF9; transition:opacity .1s ease;
 }
+.cerrar-alumnos:active{ opacity:.6; }
 
 .alumno-row{ display:flex; gap:6px; align-items:center; padding:6px 0; font-size:12.5px; border-bottom:1px solid #F5EDF9; }
 .alumno-row .an{ flex:1; font-weight:600; }
 .alumno-row .nota{ width:38px; text-align:center; font-weight:700; color:var(--violet); }
-.alumno-row button{ border:none; background:none; color:#C9A0D6; font-size:14px; cursor:pointer; padding:2px 6px; }
+.alumno-row button{ border:none; background:none; color:#C9A0D6; font-size:14px; cursor:pointer; padding:2px 6px; transition:transform .1s ease; }
+.alumno-row button:active{ transform:scale(.85); }
 
 .add-alumno{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
 .add-alumno input{ border:1.5px solid var(--line); border-radius:9px; padding:7px 8px; font-size:12.5px; font-family:inherit; min-width:0; }
@@ -224,7 +233,9 @@ header p{ margin:0; font-size:12px; opacity:.85; }
 .add-alumno button{
   background:var(--violet); color:#fff; border:none; border-radius:9px; padding:0 14px;
   font-weight:700; font-size:16px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;
+  transition:transform .1s ease, filter .15s ease;
 }
+.add-alumno button:active{ transform:scale(.9); filter:brightness(0.9); }
 
 /* mensaje cuando no se encuentran mesas para el nombre buscado */
 .empty{ padding:60px 24px; text-align:center; color:var(--ink-soft); font-size:13px; }
@@ -245,11 +256,31 @@ header p{ margin:0; font-size:12px; opacity:.85; }
 .install-banner .dismiss{ background:none; color:#fff; padding:2px 6px; font-size:15px; font-weight:400; }
 
 /* ============================================================
+   HOVER — solo en dispositivos con mouse real (no se queda "pegado" al tocar en celular)
+   ============================================================ */
+@media (hover:hover) and (pointer:fine){
+  .name-gate button:hover{ background:#7a3290; }
+  .google-btn:hover{ background:#f7f4f9; border-color:var(--violet); }
+  .microsoft-btn:hover{ background:#f7f4f9; border-color:var(--violet); }
+  .sin-cuenta:hover{ color:var(--violet); }
+  .toolbar button:hover{ filter:brightness(0.95); border-color:var(--violet); }
+  .tgl:hover{ filter:brightness(0.97); border-color:var(--violet); }
+  .alumnos-toggle:hover{ opacity:.75; }
+  .cerrar-alumnos:hover{ opacity:.75; color:var(--violet); }
+  .alumno-row button:hover{ color:var(--pink); }
+  .add-alumno button:hover{ filter:brightness(1.1); }
+  .install-banner button:hover{ filter:brightness(0.95); }
+  .card{ transition:box-shadow .15s ease; }
+  .card:hover{ box-shadow:0 10px 32px rgba(120,60,140,0.20); }
+}
+
+/* ============================================================
    ESCRITORIO (pantallas anchas): tarjeta centrada con sombra
    ============================================================ */
 @media (min-width: 640px){
   body{ padding:28px 0; }
   .wrap{
+    width:80%; max-width:680px;
     background:rgba(255,255,255,0.30);
     -webkit-backdrop-filter:blur(6px);
     backdrop-filter:blur(6px);
@@ -257,4 +288,11 @@ header p{ margin:0; font-size:12px; opacity:.85; }
     border-radius:24px;
   }
   header{ border-radius:24px 24px 0 0; }
+
+  /* un poco más compacto/denso en escritorio, para que no se vea todo agrandado */
+  .card{ padding:12px 14px; margin:0 10px 10px; }
+  .materia{ font-size:13.5px; }
+  .meta{ font-size:11px; }
+  .tgl{ padding:7px 6px; font-size:11.5px; }
+  .toolbar button{ padding:6px 10px; font-size:11px; }
 }
