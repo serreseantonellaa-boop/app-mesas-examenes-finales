@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Mesas — Julio 2026</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#8E3BA6">
+<link rel="apple-touch-icon" href="/assets/imgs/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+
+<div id="installBanner" class="install-banner"></div>
+
+<div id="loginBox" class="name-gate">
+  <h2>Mis Mesas — Julio 2026</h2>
+  <p>Iniciá sesión con tu cuenta de Google para que tus mesas y notas queden guardadas en la nube, sin importar desde qué celular o compu entres.</p>
+  <button class="google-btn" id="loginBtn">
+    <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="">
+    Iniciar sesión con Google
+  </button>
+</div>
+
+<div id="confirmBox" class="name-gate" style="display:none;">
+  <h2>¿Cómo aparecés en las planillas?</h2>
+  <p>Escribí tu nombre o apellido tal como figura en las mesas (ej: "Serrese"), para armar tu checklist a partir de Multimedia y Videojuegos.</p>
+  <input id="nombreInput" type="text" placeholder="Ej: Serrese">
+  <button id="confirmarBtn">Ver mis mesas</button>
+  <p class="hint">Busca coincidencias en Titular y Co-Titular de ambas carreras.</p>
+</div>
+
+<div id="app" style="display:none;">
+  <header>
+    <h1>Mis mesas — Julio 2026</h1>
+    <p>Multimedia + Videojuegos</p>
+    <p class="sync" id="syncStatus">Sincronizado ✓</p>
+  </header>
+  <div class="toolbar">
+    <span class="who">Docente: <b id="whoName"></b> <span id="whoEmail" style="opacity:.6;"></span></span>
+  </div>
+  <div class="toolbar" style="margin-top:0;">
+    <button class="download" id="downloadBtn">⬇ Excel</button>
+    <button class="calendar" id="calendarBtn">📅 Calendar</button>
+    <button class="change" id="changeBtn">Cambiar nombre</button>
+    <button id="logoutBtn">Salir</button>
+  </div>
+  <div id="list"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/js/firebase-config.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>
