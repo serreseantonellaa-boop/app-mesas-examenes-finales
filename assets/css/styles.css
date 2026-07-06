@@ -2,18 +2,28 @@
    VARIABLES DE COLOR Y SOMBRA — tocá esto para cambiar la paleta
    ============================================================ */
 :root{
-  --bg:        #FBF7FD; /* fondo general */
-  --card:      #FFFFFF; /* fondo de las tarjetas */
+  --bg:        #FBF7FD; /* fondo general (fallback) */
+  --card:      #FFFFFF; /* blanco sólido, para inputs/botones */
   --ink:       #2E1A38; /* texto principal */
-  --ink-soft:  #7A6787; /* texto secundario / gris */
+  --ink-soft:  #6c4685; /* texto secundario / gris */
   --violet:      #8E3BA6; /* color Multimedia */
   --violet-soft: #EFE0F5;
   --cyan:      #00A0A8; /* color Videojuegos */
   --cyan-soft: #DBF3F3;
   --pink:      #E0468E; /* color "acta firmada" */
-  --pink-soft: #FBE1ED;
-  --line:      #EEE3F3; /* bordes suaves */
+  --pink-soft: #d197b2;
+  --line:      #bd97ce; /* bordes suaves */
   --shadow:    0 2px 10px rgba(120,60,140,0.08);
+
+  /* degradé pastel de fondo (mismo estilo que el ícono) */
+  --grad-magenta: #F7CDE4;
+  --grad-cyan:    #C4EEEC;
+  --grad-yellow:  #FDF1C7;
+
+  /* efecto vidrio esmerilado de las tarjetas */
+  --glass-bg:     rgba(255,255,255,0.60);
+  --glass-border: rgba(255,255,255,0.75);
+  --glass-blur:   16px;
 }
 
 /* ============================================================
@@ -22,7 +32,13 @@
 *{ box-sizing:border-box; }
 body{
   margin:0;
-  background:var(--bg);
+  min-height:100vh;
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(at 0% 0%,   var(--grad-magenta) 0%, transparent 60%),
+    radial-gradient(at 100% 0%, var(--grad-yellow)  0%, transparent 60%),
+    radial-gradient(at 50% 100%, var(--grad-cyan)   0%, transparent 65%);
+  background-attachment:fixed;
   color:var(--ink);
   font-family:'Inter',system-ui,sans-serif;
   -webkit-tap-highlight-color:transparent;
@@ -106,8 +122,13 @@ header p{ margin:0; font-size:12px; opacity:.85; }
    TARJETA DE CADA MESA
    ============================================================ */
 .card{
-  background:var(--card); border-radius:16px; padding:14px 15px; margin:0 8px 10px;
-  box-shadow:var(--shadow); border-left:5px solid var(--violet);
+  background:var(--glass-bg);
+  -webkit-backdrop-filter:blur(var(--glass-blur));
+  backdrop-filter:blur(var(--glass-blur));
+  border:1px solid var(--glass-border);
+  border-radius:16px; padding:14px 15px; margin:0 8px 10px;
+  box-shadow:0 8px 28px rgba(120,60,140,0.14);
+  border-left:5px solid var(--violet);
 }
 .card.vj{ border-left-color:var(--cyan); } /* videojuegos = borde cyan */
 
@@ -190,6 +211,12 @@ header p{ margin:0; font-size:12px; opacity:.85; }
    ============================================================ */
 @media (min-width: 640px){
   body{ padding:28px 0; }
-  .wrap{ background:var(--card); box-shadow:0 12px 40px rgba(120,60,140,0.12); border-radius:0 0 24px 24px; }
-  header{ border-radius:0; }
+  .wrap{
+    background:rgba(255,255,255,0.30);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    box-shadow:0 12px 40px rgba(120,60,140,0.12);
+    border-radius:24px;
+  }
+  header{ border-radius:24px 24px 0 0; }
 }

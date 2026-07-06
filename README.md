@@ -96,5 +96,5 @@ sincronizadas muestran "📅 En tu Google Calendar" debajo de los botones.
 
 ## Actualizar las mesas
 
-Si pasan una planilla nueva más adelante, hay que generar de nuevo el 
+Si te pasan una planilla nueva más adelante, avisame y te regenero
 `assets/js/data.js` — el resto de la app no cambia.
