@@ -196,7 +196,6 @@ header p{ margin:0; font-size:12px; opacity:.85; }
 .tgl.active-campus{ background:var(--cyan-soft); border-color:var(--cyan); color:var(--cyan); }
 .tgl:active{ transform:scale(.96); }
 
-.cal-ok{ margin-top:8px; font-size:11px; color:var(--cyan); font-weight:600; } /* "En tu Google Calendar" */
 
 /* ============================================================
    PANEL DESPLEGABLE DE ALUMNOS

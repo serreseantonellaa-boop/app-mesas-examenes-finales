@@ -140,7 +140,6 @@ let estado = {};           // { mesaId: {acta, campus} }
 let alumnosPorMesa = {};   // { mesaId: [{nombre,apellido,nota}] }
 let alumnosAbiertos = {};  // { mesaId: bool } — qué paneles de alumnos están desplegados
 let guardando = false;
-let googleAccessToken = null; // token de Google para llamar a la API de Calendar
 let modoSinCuenta = false;    // true = no hay login, se guarda solo en este celular
 
 function coincideNombre(campo, palabras){
@@ -270,7 +269,6 @@ function mostrarApp(){
   document.getElementById('app').style.display = 'block';
   document.getElementById('whoName').textContent = nombreBusqueda;
   document.getElementById('whoEmail').textContent = modoSinCuenta ? '(sin cuenta)' : (currentUser.email || '');
-  document.getElementById('calendarBtn').style.display = modoSinCuenta ? 'none' : 'inline-flex';
 }
 
 async function onLoginClick(){
@@ -368,7 +366,6 @@ function render(){
           <span>${s.campus ? '✅' : '💻'}</span><span>Campus cargado</span>
         </div>
       </div>
-      ${s.calendarSynced ? '<div class="cal-ok">📅 En tu Google Calendar</div>' : ''}
       <div class="alumnos-toggle" data-id="${m.id}">
         <span>${abierto ? '▲' : '▼'}</span> 👥 ${abierto ? 'Ocultar' : 'Ver'} alumnos (${misAlumnos.length})
       </div>
@@ -436,111 +433,52 @@ async function onDelAlumno(e){
   await guardarEstado();
 }
 
-// ---------- sincronizar con Google Calendar ----------
-const CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.events';
-const FLAG_SYNC_PENDIENTE = 'calendar_sync_pendiente';
+// ---------- exportar a archivo .ics (universal: Google, Outlook, Apple, cualquiera) ----------
+function pad2(n){ return String(n).padStart(2,'0'); }
 
-async function crearEventoCalendar(m, token){
-  const [dd, mm, yyyy] = m.fecha.split('/');
-  const [hi_h, hi_m] = m.horaInicio.split(':').map(Number);
-  const [hf_h, hf_m] = m.horaFin.split(':').map(Number);
-  const pad = n => String(n).padStart(2,'0');
-  const startStr = `${yyyy}-${mm}-${dd}T${pad(hi_h)}:${pad(hi_m)}:00`;
-  const endStr = `${yyyy}-${mm}-${dd}T${pad(hf_h)}:${pad(hf_m)}:00`;
+// convierte fecha (dd/mm/yyyy) + hora local de Bs.As. (UTC-3, sin horario de verano) a UTC
+function aFechaUTC(fecha, hora){
+  const [dd, mm, yyyy] = fecha.split('/').map(Number);
+  const [h, m] = hora.split(':').map(Number);
+  const utcMillis = Date.UTC(yyyy, mm-1, dd, h, m, 0) + 3*60*60*1000; // Bs.As. = UTC-3
+  const d = new Date(utcMillis);
+  return `${d.getUTCFullYear()}${pad2(d.getUTCMonth()+1)}${pad2(d.getUTCDate())}T${pad2(d.getUTCHours())}${pad2(d.getUTCMinutes())}00Z`;
+}
+function escaparICS(txt){
+  return (txt || '').toString().replace(/\\/g,'\\\\').replace(/,/g,'\\,').replace(/;/g,'\\;').replace(/\n/g,'\\n');
+}
 
-  const body = {
-    summary: `Mesa: ${m.materia} (${m.carrera}) — ${m.llamado}° llamado`,
-    description: `Rol: ${m.rol}. Otro docente: ${m.otro || '-'}. Código: ${m.codigo}.`,
-    start: { dateTime: startStr, timeZone: 'America/Argentina/Buenos_Aires' },
-    end: { dateTime: endStr, timeZone: 'America/Argentina/Buenos_Aires' },
-    reminders: {
-      useDefault: false,
-      overrides: [{ method:'popup', minutes: 60 }, { method:'popup', minutes: 1440 }]
-    }
-  };
-
-  const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
-    method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
+function generarICS(){
+  const lineas = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Mis Mesas//ES','CALSCALE:GREGORIAN'];
+  const stamp = aFechaUTC(new Date().toLocaleDateString('en-GB'), '00:00');
+  misMesas.forEach(m => {
+    lineas.push('BEGIN:VEVENT');
+    lineas.push('UID:' + m.id + '@mis-mesas.app');
+    lineas.push('DTSTAMP:' + stamp);
+    lineas.push('DTSTART:' + aFechaUTC(m.fecha, m.horaInicio));
+    lineas.push('DTEND:' + aFechaUTC(m.fecha, m.horaFin));
+    lineas.push('SUMMARY:' + escaparICS(`Mesa: ${m.materia} (${m.carrera}) — ${m.llamado}° llamado`));
+    lineas.push('DESCRIPTION:' + escaparICS(`Rol: ${m.rol}. Otro docente: ${m.otro || '-'}. Código: ${m.codigo}.`));
+    lineas.push('BEGIN:VALARM'); lineas.push('ACTION:DISPLAY'); lineas.push('DESCRIPTION:Recordatorio'); lineas.push('TRIGGER:-P1D'); lineas.push('END:VALARM');
+    lineas.push('BEGIN:VALARM'); lineas.push('ACTION:DISPLAY'); lineas.push('DESCRIPTION:Recordatorio'); lineas.push('TRIGGER:-PT1H'); lineas.push('END:VALARM');
+    lineas.push('END:VEVENT');
   });
-  if(!res.ok){
-    const err = await res.json().catch(()=>({}));
-    throw new Error(err.error && err.error.message ? err.error.message : ('HTTP ' + res.status));
-  }
-  return res.json();
+  lineas.push('END:VCALENDAR');
+  return lineas.join('\r\n');
 }
 
-async function ejecutarSincronizacionCalendar(token){
-  const btn = document.getElementById('calendarBtn');
-  const original = btn ? btn.textContent : '';
-  if(btn) btn.disabled = true;
-  try{
-    const pendientes = misMesas.filter(m => !(estado[m.id] && estado[m.id].calendarSynced));
-    if(pendientes.length === 0){
-      alert('Ya están todas tus mesas agregadas al Calendar.');
-      return;
-    }
-    let ok = 0, fail = 0;
-    for(const m of pendientes){
-      if(btn) btn.textContent = `Agregando (${ok+fail+1}/${pendientes.length})…`;
-      try{
-        await crearEventoCalendar(m, token);
-        if(!estado[m.id]) estado[m.id] = {acta:false, campus:false};
-        estado[m.id].calendarSynced = true;
-        ok++;
-      }catch(e){
-        console.error('Error creando evento', m.id, e);
-        fail++;
-      }
-    }
-    await guardarEstado();
-    render();
-    alert(`Listo: ${ok} mesas agregadas a tu Calendar.` + (fail ? ` (${fail} fallaron, reintentá.)` : ''));
-  }catch(e){
-    alert('No se pudo sincronizar con Calendar: ' + e.message);
-  }finally{
-    if(btn){ btn.disabled = false; btn.textContent = original; }
-  }
-}
-
-async function onSincronizarCalendar(){
-  if(googleAccessToken){
-    await ejecutarSincronizacionCalendar(googleAccessToken);
-    return;
-  }
-  // No tenemos token todavía: pedimos el permiso por redirección de página
-  // (en el celular, el popup se bloquea o falla seguido; redirect es más confiable).
-  try{
-    sessionStorage.setItem(FLAG_SYNC_PENDIENTE, '1');
-    const provider = new firebase.auth.GoogleAuthProvider();
-    provider.addScope(CALENDAR_SCOPE);
-    await auth.signInWithRedirect(provider);
-    // la página se recarga acá — el resto continúa en revisarRedirectCalendar()
-  }catch(e){
-    sessionStorage.removeItem(FLAG_SYNC_PENDIENTE);
-    alert('No se pudo pedir permiso de Calendar: ' + e.message);
-  }
-}
-
-async function revisarRedirectCalendar(){
-  try{
-    const result = await auth.getRedirectResult();
-    if(result && result.user){
-      const credential = firebase.auth.GoogleAuthProvider.credentialFromResult(result);
-      if(credential && credential.accessToken) googleAccessToken = credential.accessToken;
-    }
-  }catch(e){
-    console.error('Error al volver de la redirección de Calendar', e);
-  }
-  if(sessionStorage.getItem(FLAG_SYNC_PENDIENTE)){
-    sessionStorage.removeItem(FLAG_SYNC_PENDIENTE);
-    if(googleAccessToken){
-      await ejecutarSincronizacionCalendar(googleAccessToken);
-    } else {
-      alert('No se pudo obtener permiso de Calendar. Probá de nuevo.');
-    }
-  }
+function descargarICS(){
+  if(misMesas.length === 0){ alert('No hay mesas para exportar.'); return; }
+  const contenido = generarICS();
+  const blob = new Blob([contenido], { type: 'text/calendar;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Mis_Mesas_${nombreBusqueda.replace(/[^a-zA-Z0-9]+/g,'_')}.ics`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 // ---------- exportar a Excel ----------
@@ -578,7 +516,7 @@ document.getElementById('confirmarBtn').addEventListener('click', () => { sonido
 document.getElementById('nombreInput').addEventListener('keydown', e => { if(e.key === 'Enter') onConfirmarNombre(); });
 document.getElementById('changeBtn').addEventListener('click', () => { sonidoClick(); onCambiarNombre(); });
 document.getElementById('downloadBtn').addEventListener('click', () => { sonidoClick(); descargarExcel(); });
-document.getElementById('calendarBtn').addEventListener('click', () => { sonidoClick(); onSincronizarCalendar(); });
+document.getElementById('calendarBtn').addEventListener('click', () => { sonidoClick(); descargarICS(); });
 document.getElementById('muteBtn').addEventListener('click', toggleSonido);
 document.getElementById('muteBtn').textContent = sonidoActivado ? '🔊' : '🔇';
 
@@ -605,7 +543,6 @@ if(!FIREBASE_CONFIGURADO){
       } else {
         mostrarPantallaConfirmar(user.displayName || '');
       }
-      revisarRedirectCalendar();
     } else {
       mostrarPantallaLogin();
     }
