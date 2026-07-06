@@ -63,6 +63,32 @@ header h1{ font-family:'Poppins',sans-serif; font-size:16.5px; font-weight:700; 
 header p{ margin:0; font-size:12px; opacity:.85; }
 .sync{ font-size:11px; opacity:.85; margin-top:8px; } /* texto "Sincronizado ✓" */
 
+.header-top{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.progress-ring{ position:relative; width:52px; height:52px; flex-shrink:0; }
+.progress-ring span{
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-family:'Poppins',sans-serif; font-weight:700; font-size:12px; color:#fff;
+}
+#progressCircle{ transition:stroke-dashoffset .4s ease; }
+
+.mute-btn{ flex:0 0 auto !important; padding:7px 10px !important; }
+
+.celebracion{
+  position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center;
+  background:rgba(142,59,166,0.25); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+}
+.celebracion-card{
+  background:var(--card); border-radius:20px; padding:32px 28px; text-align:center;
+  box-shadow:0 20px 60px rgba(120,60,140,0.3); max-width:280px;
+  animation:celebracion-pop .5s cubic-bezier(.34,1.56,.64,1);
+}
+.celebracion-emoji{ font-size:48px; margin-bottom:10px; }
+.celebracion-texto{ font-family:'Poppins',sans-serif; font-weight:700; font-size:15px; color:var(--violet); }
+@keyframes celebracion-pop{
+  0%{ transform:scale(.6); opacity:0; }
+  100%{ transform:scale(1); opacity:1; }
+}
+
 /* ============================================================
    PANTALLAS DE LOGIN Y "¿CÓMO APARECÉS EN LAS PLANILLAS?"
    ============================================================ */
@@ -88,6 +114,19 @@ header p{ margin:0; font-size:12px; opacity:.85; }
 }
 .google-btn img{ width:18px; height:18px; }
 .google-btn:active{ transform:scale(.98); }
+
+.microsoft-btn{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  background:#fff; color:#3c4043; border:1.5px solid var(--line); border-radius:14px;
+  padding:13px; font-weight:600; font-size:14.5px; cursor:pointer; width:100%;
+  margin-top:10px;
+}
+.microsoft-btn:active{ transform:scale(.98); }
+
+.sin-cuenta{
+  margin-top:16px; font-size:12px; color:var(--ink-soft); text-decoration:underline;
+  cursor:pointer; text-align:center;
+}
 
 /* ============================================================
    BARRA DE BOTONES (Excel / Calendar / Cambiar nombre / Salir)
